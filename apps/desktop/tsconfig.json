@@ -1,15 +1,23 @@
 {
-  "extends": "@shuaibin-cookie-app/config/tsconfig.base.json",
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
-    "moduleResolution": "bundler",
+    "moduleResolution": "Bundler",
     "jsx": "react-jsx",
-    "outDir": "out",
-    "rootDir": "src",
+    "rootDir": "../..",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "types": ["node", "vite/client"],
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./apps/desktop/src/*"],
+      "@shuaibin-cookie-app/ui/*": ["./packages/ui/src/*"]
     }
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "../../packages/ui/src/**/*"]
 }
