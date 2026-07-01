@@ -10,6 +10,7 @@ This is a [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-sta
 - **Backend**: `apps/server` — Hono on Node.js via `@hono/node-server`.
 - **Database**: `packages/db` — Drizzle ORM with libSQL/Turso dialect, SQLite file DB in development.
 - **Shared packages**: `packages/ui` (shadcn/ui primitives and global styles), `packages/env` (T3-style env validation), `packages/config` (shared TypeScript config).
+- **Desktop**: `apps/desktop` — Electron app embedding the Hono backend and a Vite+React renderer; packaged with electron-builder.
 
 ## Common Commands
 
@@ -25,6 +26,17 @@ pnpm run dev:server     # Start only the Hono server
 ```
 
 The web dev server runs on port `3001` by default (`apps/web/vite.config.ts`), and the server runs on port `3000`.
+
+### Desktop
+
+```bash
+pnpm run dev:desktop       # Start Electron in dev mode with embedded Hono server
+pnpm run build:desktop     # Build desktop production artifacts
+pnpm run dist:desktop      # Build Windows installer and portable zip
+pnpm run compile:desktop   # Build desktop with default electron-builder target
+```
+
+The desktop dev renderer server runs on port `5174` and the embedded Hono server on port `3002`.
 
 ### Database
 
@@ -76,14 +88,15 @@ pnpm run hooks:setup    # Install Vite+ native Git hooks (vp config)
 
 This is a pnpm workspace (`pnpm-workspace.yaml`) with package-level scripts invoked through `vp run --filter <name>` or root aliases.
 
-| Package/App | Name | Key paths |
-|-------------|------|-----------|
-| `apps/web` | `web` | `src/main.tsx`, `src/routes/` (file-based TanStack Router), `src/components/`, `index.html` |
-| `apps/server` | `server` | `src/index.ts` (Hono app + `serve`) |
-| `packages/db` | `@shuaibin-cookie-app/db` | `src/index.ts` (client + `createDb`), `src/schema/`, `src/migrations/`, `drizzle.config.ts` |
-| `packages/ui` | `@shuaibin-cookie-app/ui` | `src/components/`, `src/styles/globals.css`, `src/lib/utils.ts`, `components.json` |
-| `packages/env` | `@shuaibin-cookie-app/env` | `src/server.ts`, `src/web.ts` (Zod env schemas via `@t3-oss/env-core`) |
-| `packages/config` | `@shuaibin-cookie-app/config` | `tsconfig.base.json` |
+| Package/App       | Name                          | Key paths                                                                                       |
+| ----------------- | ----------------------------- | ----------------------------------------------------------------------------------------------- |
+| `apps/desktop`    | `desktop`                     | `src/main/index.ts`, `src/renderer/main.tsx`, `electron.vite.config.ts`, `electron-builder.yml` |
+| `apps/web`        | `web`                         | `src/main.tsx`, `src/routes/` (file-based TanStack Router), `src/components/`, `index.html`     |
+| `apps/server`     | `server`                      | `src/index.ts` (Hono app + `serve`)                                                             |
+| `packages/db`     | `@shuaibin-cookie-app/db`     | `src/index.ts` (client + `createDb`), `src/schema/`, `src/migrations/`, `drizzle.config.ts`     |
+| `packages/ui`     | `@shuaibin-cookie-app/ui`     | `src/components/`, `src/styles/globals.css`, `src/lib/utils.ts`, `components.json`              |
+| `packages/env`    | `@shuaibin-cookie-app/env`    | `src/server.ts`, `src/web.ts` (Zod env schemas via `@t3-oss/env-core`)                          |
+| `packages/config` | `@shuaibin-cookie-app/config` | `tsconfig.base.json`                                                                            |
 
 ## High-Level Architecture
 
