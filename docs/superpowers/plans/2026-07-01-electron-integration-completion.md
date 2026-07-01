@@ -71,9 +71,11 @@ Files to create or modify during completion:
 ### Task 1: Verify development workflow
 
 **Files:**
+
 - No code changes expected; verification only.
 
 **Interfaces:**
+
 - Consumes: all desktop source files and `apps/server` build output.
 - Produces: confirmation that `pnpm run dev:desktop` launches a working Electron window.
 
@@ -100,6 +102,7 @@ pnpm run dev:desktop
 ```
 
 Expected:
+
 - `apps/server` builds to `dist/index.mjs`.
 - Electron window opens.
 - Renderer loads from `http://localhost:5174`.
@@ -128,9 +131,11 @@ If any step fails, create a follow-up Task 4 sub-task for the failure before pro
 ### Task 2: Verify type checking and code quality
 
 **Files:**
+
 - No code changes expected; verification only.
 
 **Interfaces:**
+
 - Consumes: all workspace packages.
 - Produces: confirmation that `check-types`, `lint`, and `format` pass.
 
@@ -167,9 +172,11 @@ If any step fails, create a follow-up Task 4 sub-task for the failure before pro
 ### Task 3: Verify production build and packaging
 
 **Files:**
+
 - No code changes expected; verification only.
 
 **Interfaces:**
+
 - Consumes: all desktop source files and `apps/server` build output.
 - Produces: `apps/desktop/out/` and `apps/desktop/dist/` artifacts.
 
@@ -180,6 +187,7 @@ pnpm run build:desktop
 ```
 
 Expected:
+
 - `apps/server` builds to `dist/index.mjs`.
 - `apps/desktop/out/main/index.js` is created.
 - `apps/desktop/out/preload/index.mjs` is created.
@@ -193,6 +201,7 @@ pnpm run dist:desktop
 ```
 
 Expected:
+
 - `apps/desktop/dist` contains:
   - `ShuaibinCookieApp Setup.exe` (NSIS installer)
   - `ShuaibinCookieApp-win32-x64.zip`
@@ -203,6 +212,7 @@ Expected:
 Extract `apps/desktop/dist/ShuaibinCookieApp-win32-x64.zip` and run `ShuaibinCookieApp.exe`.
 
 Expected:
+
 - App window opens.
 - Embedded server starts on a dynamically discovered port.
 - Renderer loads the production build.
@@ -217,9 +227,11 @@ If any step fails, create a follow-up Task 4 sub-task for the failure before pro
 ### Task 4: Fix verification failures
 
 **Files:**
+
 - Varies based on failures found in Tasks 1–3.
 
 **Interfaces:**
+
 - Consumes: failure output from Tasks 1–3.
 - Produces: corrected code/config that passes re-verification.
 
@@ -289,9 +301,11 @@ git commit -m "fix(desktop): resolve <issue>"
 ### Task 5: Update project documentation
 
 **Files:**
+
 - Modify: `CLAUDE.md`
 
 **Interfaces:**
+
 - Consumes: verified desktop commands and architecture.
 - Produces: updated project guidance covering the desktop app.
 
@@ -307,7 +321,7 @@ In the Project Overview section, add:
 
 Add a new subsection under Development:
 
-```markdown
+````markdown
 ### Desktop
 
 ```bash
@@ -316,9 +330,11 @@ pnpm run build:desktop     # Build desktop production artifacts
 pnpm run dist:desktop      # Build Windows installer and portable zip
 pnpm run compile:desktop   # Build desktop with default electron-builder target
 ```
+````
 
 The desktop dev renderer server runs on port `5174` and the embedded Hono server on port `3002`.
-```
+
+````
 
 - [ ] **Step 3: Add desktop package to Workspace and Package Layout table**
 
@@ -326,7 +342,7 @@ Add a row:
 
 ```markdown
 | `apps/desktop` | `desktop` | `src/main/index.ts`, `src/renderer/main.tsx`, `electron.vite.config.ts`, `electron-builder.yml` |
-```
+````
 
 - [ ] **Step 4: Commit documentation update**
 
@@ -340,9 +356,11 @@ git commit -m "docs: add desktop app commands and architecture to CLAUDE.md"
 ### Task 6: Merge `electron-integration` into `main`
 
 **Files:**
+
 - Branch operation; no direct file edits.
 
 **Interfaces:**
+
 - Consumes: verified `electron-integration` branch.
 - Produces: `main` branch with desktop integration.
 
@@ -393,9 +411,11 @@ git push origin main
 ### Task 7: Final verification on `main`
 
 **Files:**
+
 - No code changes expected; final smoke test.
 
 **Interfaces:**
+
 - Consumes: merged `main` branch.
 - Produces: confidence that desktop and web workflows both work.
 

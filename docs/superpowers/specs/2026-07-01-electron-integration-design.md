@@ -216,13 +216,13 @@ Add to `apps/desktop`:
 
 ## Risks & Mitigations
 
-| Risk | Mitigation |
-|------|------------|
-| Port `3001` occupied in production | Dynamic port discovery + API to expose port to renderer. |
-| Native dependencies incompatible with Electron | Use `electron-builder install-app-deps` in `postinstall`. |
-| Large bundle size | electron-vite tree-shakes main/preload; renderer reuses shared packages. |
+| Risk                                                   | Mitigation                                                                            |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------- |
+| Port `3001` occupied in production                     | Dynamic port discovery + API to expose port to renderer.                              |
+| Native dependencies incompatible with Electron         | Use `electron-builder install-app-deps` in `postinstall`.                             |
+| Large bundle size                                      | electron-vite tree-shakes main/preload; renderer reuses shared packages.              |
 | CORS mismatch between dev renderer and embedded server | Set `CORS_ORIGIN` to allow both dev server origin and `file://` origin in production. |
-| Auto-updater requires code signing | Configure publish target but do not enable auto-update until signing is available. |
+| Auto-updater requires code signing                     | Configure publish target but do not enable auto-update until signing is available.    |
 
 ## Open Questions
 

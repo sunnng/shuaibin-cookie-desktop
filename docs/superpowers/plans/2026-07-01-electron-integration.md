@@ -61,11 +61,13 @@ package.json              # root: add dev:desktop, build:desktop, dist:desktop
 ### Task 1: Refactor `apps/server` to export the Hono app without auto-starting
 
 **Files:**
+
 - Modify: `apps/server/src/index.ts`
 - Create: `apps/server/src/start.ts`
 - Modify: `apps/server/package.json`
 
 **Interfaces:**
+
 - Consumes: nothing new.
 - Produces: default export `app` from `apps/server/src/index.ts`; `apps/server/src/start.ts` is the standalone server entry.
 
@@ -165,11 +167,13 @@ git commit -m "refactor(server): export Hono app separately from serve entry"
 ### Task 2: Scaffold the `apps/desktop` package
 
 **Files:**
+
 - Create: `apps/desktop/package.json`
 - Create: `apps/desktop/tsconfig.json`
 - Create: `apps/desktop/.env`
 
 **Interfaces:**
+
 - Consumes: workspace packages `@shuaibin-cookie-app/env`, `@shuaibin-cookie-app/ui`, `server`; catalog deps.
 - Produces: `apps/desktop` as a valid pnpm workspace package.
 
@@ -258,10 +262,12 @@ if ($?) { git commit -m "chore(desktop): scaffold desktop package" }
 ### Task 3: Configure electron-vite and electron-builder
 
 **Files:**
+
 - Create: `apps/desktop/electron.vite.config.ts`
 - Create: `apps/desktop/electron-builder.yml`
 
 **Interfaces:**
+
 - Consumes: source files in `src/main`, `src/preload`, `src/renderer`.
 - Produces: `out/main`, `out/preload`, `out/renderer` directories; `dist/` installer artifacts.
 
@@ -367,10 +373,12 @@ git commit -m "chore(desktop): add electron-vite and electron-builder configs"
 ### Task 4: Create the preload script and typed API
 
 **Files:**
+
 - Create: `apps/desktop/src/preload/index.ts`
 - Create: `apps/desktop/src/preload/api.d.ts`
 
 **Interfaces:**
+
 - Consumes: `electron` APIs.
 - Produces: `window.electronAPI` typed interface used by the renderer.
 
@@ -430,9 +438,11 @@ git commit -m "feat(desktop): add preload script with typed electronAPI"
 ### Task 5: Create the embedded Hono server wrapper with port discovery
 
 **Files:**
+
 - Create: `apps/desktop/src/main/server.ts`
 
 **Interfaces:**
+
 - Consumes: `app` from `apps/server/src/index.ts`.
 - Produces: `startServer(startPort)` returns `{ port, stop }`.
 
@@ -446,7 +456,10 @@ import type { Hono } from "hono";
 
 const MAX_PORT_ATTEMPTS = 100;
 
-export async function startServer(app: Hono, startPort = 3001): Promise<{ port: number; stop: () => void }> {
+export async function startServer(
+  app: Hono,
+  startPort = 3001,
+): Promise<{ port: number; stop: () => void }> {
   for (let offset = 0; offset < MAX_PORT_ATTEMPTS; offset++) {
     const port = startPort + offset;
     try {
@@ -479,7 +492,9 @@ export async function startServer(app: Hono, startPort = 3001): Promise<{ port: 
     }
   }
 
-  throw new Error(`Unable to find an available port after ${MAX_PORT_ATTEMPTS} attempts starting from ${startPort}`);
+  throw new Error(
+    `Unable to find an available port after ${MAX_PORT_ATTEMPTS} attempts starting from ${startPort}`,
+  );
 }
 ```
 
@@ -505,11 +520,13 @@ git commit -m "feat(desktop): add embedded Hono server with port discovery"
 ### Task 6: Create main-process IPC handlers
 
 **Files:**
+
 - Create: `apps/desktop/src/main/ipc-handlers.ts`
 - Create: `apps/desktop/src/main/tray.ts`
 - Create: `apps/desktop/src/main/updater.ts`
 
 **Interfaces:**
+
 - Consumes: `BrowserWindow`, `serverPort` from main process.
 - Produces: IPC handlers registered on `ipcMain`.
 
@@ -626,10 +643,12 @@ git commit -m "feat(desktop): add main process IPC handlers, tray, and updater s
 ### Task 7: Create the main process entry
 
 **Files:**
+
 - Create: `apps/desktop/src/main/index.ts`
 - Create: `apps/desktop/src/main/env.ts`
 
 **Interfaces:**
+
 - Consumes: `registerIpcHandlers` from `./ipc-handlers.js`, `createTray` from `./tray.js`, `initAutoUpdater` from `./updater.js`, `app` from `electron`; dynamically imports the Hono `app` from `server` and `startServer` from `./server.js` after `loadServerEnv()` populates `process.env`.
 - Produces: running Electron application.
 
@@ -754,12 +773,14 @@ git commit -m "feat(desktop): add Electron main process entry and env loader"
 ### Task 8: Create the renderer entry and API client
 
 **Files:**
+
 - Create: `apps/desktop/src/renderer/index.html`
 - Create: `apps/desktop/src/renderer/main.tsx`
 - Create: `apps/desktop/src/renderer/App.tsx`
 - Create: `apps/desktop/src/renderer/api.ts`
 
 **Interfaces:**
+
 - Consumes: `window.electronAPI`, `@shuaibin-cookie-app/ui`, React.
 - Produces: rendered desktop UI that calls the embedded Hono API.
 
@@ -852,7 +873,11 @@ export function App() {
         )}
       </section>
       <div className="mt-4">
-        <Button onClick={() => window.electronAPI.showNotification({ title: "Hello", body: "From desktop" })}>
+        <Button
+          onClick={() =>
+            window.electronAPI.showNotification({ title: "Hello", body: "From desktop" })
+          }
+        >
           Show notification
         </Button>
       </div>
@@ -891,10 +916,12 @@ git commit -m "feat(desktop): add renderer entry, API client, and App shell"
 ### Task 9: Wire root scripts and ignore desktop build artifacts
 
 **Files:**
+
 - Modify: `package.json`
 - Modify: `.gitignore`
 
 **Interfaces:**
+
 - Consumes: `apps/desktop` scripts.
 - Produces: convenient root-level commands.
 
@@ -938,9 +965,11 @@ git commit -m "chore: add desktop root scripts and ignore build outputs"
 ### Task 10: Verify the development workflow
 
 **Files:**
+
 - None (manual verification).
 
 **Interfaces:**
+
 - Consumes: all previous tasks.
 - Produces: working dev Electron app.
 
@@ -979,9 +1008,11 @@ No code change; if fixes were needed, commit them with a descriptive message.
 ### Task 11: Verify production build and packaging
 
 **Files:**
+
 - None (manual verification).
 
 **Interfaces:**
+
 - Consumes: all previous tasks.
 - Produces: packaged Windows installer/zip.
 
@@ -1020,9 +1051,11 @@ If packaging required config tweaks, commit them.
 ### Task 12: Add desktop-specific type checks to root check
 
 **Files:**
+
 - Modify: root `package.json`
 
 **Interfaces:**
+
 - Consumes: `apps/desktop` `check-types` script.
 - Produces: integrated type checking.
 

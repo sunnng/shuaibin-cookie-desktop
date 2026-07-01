@@ -29,7 +29,11 @@ export function App() {
         )}
       </section>
       <div className="mt-4">
-        <Button onClick={() => window.electronAPI.showNotification({ title: "Hello", body: "From desktop" })}>
+        <Button
+          onClick={() =>
+            window.electronAPI.showNotification({ title: "Hello", body: "From desktop" })
+          }
+        >
           Show notification
         </Button>
       </div>
