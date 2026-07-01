@@ -53,3 +53,8 @@ coverage
 tmp
 temp
 .worktrees/
+
+# Electron desktop build outputs
+apps/desktop/out
+apps/desktop/dist
+apps/desktop/local.db*
