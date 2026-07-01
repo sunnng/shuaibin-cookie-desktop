@@ -22,10 +22,10 @@
     "db:generate": "vp run --filter @shuaibin-cookie-app/db db:generate",
     "db:migrate": "vp run --filter @shuaibin-cookie-app/db db:migrate",
     "db:local": "vp run --filter @shuaibin-cookie-app/db db:local",
-    "dev:desktop": "vp run --filter desktop dev",
-    "build:desktop": "vp run --filter desktop build",
-    "dist:desktop": "vp run --filter desktop dist:win",
-    "compile:desktop": "vp run --filter desktop compile"
+    "dev:desktop": "vp run --filter server build && vp run --filter desktop dev",
+    "build:desktop": "vp run --filter server build && vp run --filter desktop build",
+    "dist:desktop": "vp run --filter server build && vp run --filter desktop dist:win",
+    "compile:desktop": "vp run --filter server build && vp run --filter desktop compile"
   },
   "dependencies": {
     "@shuaibin-cookie-app/env": "workspace:*",

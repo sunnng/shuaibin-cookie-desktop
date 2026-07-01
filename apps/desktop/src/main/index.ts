@@ -54,7 +54,9 @@ app.whenReady().then(async () => {
     import("./server.js"),
   ]);
 
-  const server = await startServer(honoApp, 3001);
+  const isDev = process.env.NODE_ENV === "development" || !app.isPackaged;
+  const startPort = isDev ? 3002 : 3001;
+  const server = await startServer(honoApp, startPort);
   serverPort = server.port;
   stopServer = server.stop;
 

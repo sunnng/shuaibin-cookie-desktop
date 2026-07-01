@@ -8,6 +8,7 @@
       "types": "./src/index.ts"
     }
   },
+  "files": ["dist", "src"],
   "scripts": {
     "build": "tsdown",
     "check-types": "tsc -b",
