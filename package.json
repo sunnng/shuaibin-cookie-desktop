@@ -1,0 +1,43 @@
+{
+  "name": "shuaibin-cookie-app",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "type": "module",
+  "scripts": {
+    "dev": "vp run -r dev",
+    "build": "vp run -r build",
+    "check-types": "vp run -r check-types",
+    "check": "vp check && vp run -r check-types",
+    "lint": "vp lint",
+    "format": "vp fmt",
+    "staged": "vp staged",
+    "hooks:setup": "vp config",
+    "dev:web": "vp run --filter web dev",
+    "dev:server": "vp run --filter server dev",
+    "db:push": "vp run --filter @shuaibin-cookie-app/db db:push",
+    "db:studio": "vp run --filter @shuaibin-cookie-app/db db:studio",
+    "db:generate": "vp run --filter @shuaibin-cookie-app/db db:generate",
+    "db:migrate": "vp run --filter @shuaibin-cookie-app/db db:migrate",
+    "db:local": "vp run --filter @shuaibin-cookie-app/db db:local"
+  },
+  "dependencies": {
+    "@shuaibin-cookie-app/env": "workspace:*",
+    "dotenv": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@shuaibin-cookie-app/config": "workspace:*",
+    "@types/node": "catalog:",
+    "rolldown": "1.1.0",
+    "typescript": "catalog:",
+    "vite-plus": "0.1.24"
+  },
+  "overrides": {
+    "vite": "npm:@voidzero-dev/vite-plus-core@0.1.24",
+    "vitest": "npm:@voidzero-dev/vite-plus-test@0.1.24"
+  },
+  "packageManager": "pnpm@11.9.0"
+}
