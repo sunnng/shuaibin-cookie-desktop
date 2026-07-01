@@ -442,12 +442,11 @@ Create `apps/desktop/src/main/server.ts`:
 
 ```ts
 import { serve } from "@hono/node-server";
-import type { Serve } from "@hono/node-server";
-import { app } from "server";
+import type { Hono } from "hono";
 
 const MAX_PORT_ATTEMPTS = 100;
 
-export async function startServer(startPort = 3001): Promise<{ port: number; stop: () => void }> {
+export async function startServer(app: Hono, startPort = 3001): Promise<{ port: number; stop: () => void }> {
   for (let offset = 0; offset < MAX_PORT_ATTEMPTS; offset++) {
     const port = startPort + offset;
     try {
@@ -456,7 +455,7 @@ export async function startServer(startPort = 3001): Promise<{ port: number; sto
           {
             fetch: app.fetch,
             port,
-          } as Serve,
+          },
           (info) => {
             if (info.port === port) {
               resolve(s);
@@ -631,7 +630,7 @@ git commit -m "feat(desktop): add main process IPC handlers, tray, and updater s
 - Create: `apps/desktop/src/main/env.ts`
 
 **Interfaces:**
-- Consumes: `startServer` from `./server.js`, `registerIpcHandlers` from `./ipc-handlers.js`, `createTray` from `./tray.js`, `initAutoUpdater` from `./updater.js`, `app` from `electron`.
+- Consumes: `registerIpcHandlers` from `./ipc-handlers.js`, `createTray` from `./tray.js`, `initAutoUpdater` from `./updater.js`, `app` from `electron`; dynamically imports the Hono `app` from `server` and `startServer` from `./server.js` after `loadServerEnv()` populates `process.env`.
 - Produces: running Electron application.
 
 - [ ] **Step 1: Create environment loader**
@@ -668,7 +667,6 @@ import { loadServerEnv } from "./env.js";
 loadServerEnv();
 
 import { registerIpcHandlers } from "./ipc-handlers.js";
-import { startServer } from "./server.js";
 import { createTray } from "./tray.js";
 import { initAutoUpdater } from "./updater.js";
 
@@ -709,7 +707,12 @@ async function createWindow() {
 }
 
 app.whenReady().then(async () => {
-  const server = await startServer(3001);
+  const [{ app: honoApp }, { startServer }] = await Promise.all([
+    import("server"),
+    import("./server.js"),
+  ]);
+
+  const server = await startServer(honoApp, 3001);
   serverPort = server.port;
   stopServer = server.stop;
 
