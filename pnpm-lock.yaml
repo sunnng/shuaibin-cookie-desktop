@@ -75,6 +75,9 @@ importers:
 
   apps/desktop:
     dependencies:
+      '@hono/node-server':
+        specifier: ^1.14.4
+        version: 1.19.14(hono@4.12.27)
       '@shuaibin-cookie-app/env':
         specifier: workspace:*
         version: link:../../packages/env
@@ -84,6 +87,9 @@ importers:
       dotenv:
         specifier: 'catalog:'
         version: 17.4.2
+      hono:
+        specifier: ^4.8.2
+        version: 4.12.27
       server:
         specifier: workspace:*
         version: link:../server

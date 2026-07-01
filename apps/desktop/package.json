@@ -13,9 +13,11 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
+    "@hono/node-server": "^1.14.4",
     "@shuaibin-cookie-app/env": "workspace:*",
     "@shuaibin-cookie-app/ui": "workspace:*",
     "dotenv": "catalog:",
+    "hono": "^4.8.2",
     "server": "workspace:*"
   },
   "devDependencies": {
