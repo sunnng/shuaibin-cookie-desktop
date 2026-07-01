@@ -1,3 +1,11 @@
+import { config } from "dotenv";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+config({ path: path.resolve(__dirname, "../.env") });
+
 import { env } from "@shuaibin-cookie-app/env/server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
@@ -18,14 +26,5 @@ app.get("/", (c) => {
   return c.text("OK");
 });
 
-import { serve } from "@hono/node-server";
-
-serve(
-  {
-    fetch: app.fetch,
-    port: 3000,
-  },
-  (info) => {
-    console.log(`Server is running on http://localhost:${info.port}`);
-  },
-);
+export { app };
+export default app;
