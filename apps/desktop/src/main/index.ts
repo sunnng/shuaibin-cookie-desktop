@@ -5,7 +5,7 @@ import { loadServerEnv } from "./env.js";
 loadServerEnv();
 
 import { registerIpcHandlers } from "./ipc-handlers.js";
-import { createTray } from "./tray.js";
+import { createTray, destroyTray } from "./tray.js";
 import { initAutoUpdater } from "./updater.js";
 
 let mainWindow: BrowserWindow | null = null;
@@ -80,6 +80,7 @@ app.on("window-all-closed", () => {
 });
 
 app.on("before-quit", () => {
+  destroyTray();
   if (stopServer) {
     stopServer();
   }

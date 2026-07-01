@@ -19,8 +19,16 @@ export function registerIpcHandlers({
   });
 
   ipcMain.handle("notification:show", (_, options) => {
-    const notification = new Notification(options);
-    notification.show();
+    if (!Notification.isSupported()) {
+      console.warn("[desktop] Notifications are not supported on this system");
+      return;
+    }
+    try {
+      const notification = new Notification(options);
+      notification.show();
+    } catch (err) {
+      console.error("[desktop] Failed to show notification:", err);
+    }
   });
 
   ipcMain.handle("app:minimizeToTray", () => {
