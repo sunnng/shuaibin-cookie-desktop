@@ -1,0 +1,32 @@
+{
+  "name": "desktop",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "out/main/index.js",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "compile": "electron-vite build && electron-builder",
+    "dist:win": "electron-vite build && electron-builder --win",
+    "postinstall": "electron-builder install-app-deps",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@shuaibin-cookie-app/env": "workspace:*",
+    "@shuaibin-cookie-app/ui": "workspace:*",
+    "dotenv": "catalog:",
+    "server": "workspace:*"
+  },
+  "devDependencies": {
+    "@shuaibin-cookie-app/config": "workspace:*",
+    "@types/node": "catalog:",
+    "electron": "^34.0.0",
+    "electron-builder": "^26.0.0",
+    "electron-vite": "^3.0.0",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "typescript": "catalog:",
+    "vite": "^8.0.8"
+  }
+}
