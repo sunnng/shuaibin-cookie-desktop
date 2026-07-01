@@ -42,6 +42,10 @@ async function createWindow() {
   } else {
     await mainWindow.loadFile(path.join(__dirname, "../renderer/index.html"));
   }
+
+  mainWindow.on("closed", () => {
+    mainWindow = null;
+  });
 }
 
 app.whenReady().then(async () => {
@@ -59,12 +63,12 @@ app.whenReady().then(async () => {
   await createWindow();
   createTray(mainWindow!);
   initAutoUpdater();
+});
 
-  app.on("activate", () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
-    }
-  });
+app.on("activate", async () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    await createWindow();
+  }
 });
 
 app.on("window-all-closed", () => {
