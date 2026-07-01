@@ -5,9 +5,12 @@ import path from "node:path";
 
 let tray: Tray | null = null;
 
-export function createTray(mainWindow: BrowserWindow): Tray | null {
+export function createTray(mainWindow: BrowserWindow): Tray {
+  if (tray) {
+    return tray;
+  }
+
   const iconPath = path.join(process.resourcesPath, "icon.png");
-  // Create tray with icon only if it exists; otherwise create a default 1x1 transparent icon.
   if (fs.existsSync(iconPath)) {
     tray = new Tray(iconPath);
   } else {
@@ -41,4 +44,11 @@ export function createTray(mainWindow: BrowserWindow): Tray | null {
   });
 
   return tray;
+}
+
+export function destroyTray(): void {
+  if (tray) {
+    tray.destroy();
+    tray = null;
+  }
 }

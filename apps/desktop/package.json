@@ -2,6 +2,8 @@
   "name": "desktop",
   "version": "0.0.0",
   "private": true,
+  "description": "ShuaibinCookieApp Desktop",
+  "author": "ShuaibinCookieApp Team",
   "type": "module",
   "main": "out/main/index.js",
   "scripts": {

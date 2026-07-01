@@ -18,7 +18,7 @@ export function registerIpcHandlers({
     return dialog.showSaveDialog(mainWindow, options);
   });
 
-  ipcMain.handle("notification:show", async (_, options) => {
+  ipcMain.handle("notification:show", (_, options) => {
     const notification = new Notification(options);
     notification.show();
   });
