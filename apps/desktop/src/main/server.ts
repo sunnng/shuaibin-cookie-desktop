@@ -6,7 +6,7 @@ const MAX_PORT_ATTEMPTS = 100;
 export async function startServer(
   app: Hono,
   startPort = 3001,
-): Promise<{ port: number; stop: () => void }> {
+): Promise<{ port: number; stop: () => Promise<void> }> {
   for (let offset = 0; offset < MAX_PORT_ATTEMPTS; offset++) {
     const port = startPort + offset;
     try {
@@ -30,13 +30,17 @@ export async function startServer(
 
       return {
         port,
-        stop: () => {
-          try {
-            server.close();
-          } catch (err) {
-            console.error("[desktop] Error stopping embedded server:", err);
-          }
-        },
+        stop: () =>
+          new Promise<void>((resolve, reject) => {
+            server.close((err) => {
+              if (err) {
+                console.error("[desktop] Error stopping embedded server:", err);
+                reject(err);
+              } else {
+                resolve();
+              }
+            });
+          }),
       };
     } catch (err) {
       const code = (err as NodeJS.ErrnoException).code;

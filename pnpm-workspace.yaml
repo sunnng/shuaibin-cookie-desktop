@@ -1,10 +1,6 @@
 packages:
   - apps/*
   - packages/*
-allowBuilds:
-  electron: true
-  electron-winstaller: true
-  esbuild: true
 catalog:
   dotenv: ^17.2.2
   zod: ^4.1.13

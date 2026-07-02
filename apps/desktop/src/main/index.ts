@@ -10,7 +10,7 @@ import { initAutoUpdater } from "./updater.js";
 
 let mainWindow: BrowserWindow | null = null;
 let serverPort = 0;
-let stopServer: (() => void) | null = null;
+let stopServer: (() => Promise<void>) | null = null;
 
 async function createWindow() {
   mainWindow = new BrowserWindow({
@@ -79,9 +79,9 @@ app.on("window-all-closed", () => {
   }
 });
 
-app.on("before-quit", () => {
+app.on("before-quit", async () => {
   destroyTray();
   if (stopServer) {
-    stopServer();
+    await stopServer();
   }
 });
