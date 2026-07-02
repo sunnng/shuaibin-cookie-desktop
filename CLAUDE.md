@@ -20,20 +20,22 @@ All commands should be run from the repository root unless noted.
 
 ```bash
 pnpm install
-pnpm run dev            # Start web (localhost:5173) and server (localhost:3000)
+pnpm run dev            # Start web (localhost:3001) and server (localhost:3000)
 pnpm run dev:web        # Start only the web app
 pnpm run dev:server     # Start only the Hono server
 ```
 
-The web dev server runs on port `3001` by default (`apps/web/vite.config.ts`), and the server runs on port `3000`.
+The web dev server runs on port `3001` (`apps/web/vite.config.ts`), and the server runs on port `3000`.
 
 ### Desktop
 
+Desktop scripts first build the `server` package so the Electron main process can import the Hono app.
+
 ```bash
-pnpm run dev:desktop       # Start Electron in dev mode with embedded Hono server
-pnpm run build:desktop     # Build desktop production artifacts
-pnpm run dist:desktop      # Build Windows installer and portable zip
-pnpm run compile:desktop   # Build desktop with default electron-builder target
+pnpm run dev:desktop       # Build server, then start Electron in dev mode
+pnpm run build:desktop     # Build server, then build desktop production artifacts
+pnpm run dist:desktop      # Build server, then build Windows installer and portable zip
+pnpm run compile:desktop   # Build server, then build with default electron-builder target
 ```
 
 The desktop dev renderer server runs on port `5174` and the embedded Hono server on port `3002`.
@@ -50,21 +52,15 @@ pnpm run db:migrate     # Run Drizzle migrations
 pnpm run db:studio      # Open Drizzle Studio
 ```
 
-Development DB connection is configured in `apps/server/.env`:
-
-```env
-DATABASE_URL=file:../../local.db
-CORS_ORIGIN=http://localhost:3001
-```
-
 ### Build
 
 ```bash
 pnpm run build          # Build all apps/packages
 ```
 
-- `apps/web` builds with `vp build`.
-- `apps/server` builds with `tsdown` to `dist/index.mjs`; start with `pnpm --filter server start`.
+- `apps/web` builds with `vp build` to `apps/web/dist`.
+- `apps/server` builds with `tsdown` to `dist/index.mjs` (the Hono app) and `dist/start.mjs` (the standalone entry point); start with `pnpm --filter server start`.
+- `apps/desktop` builds main/preload/renderer to `apps/desktop/out` and electron-builder output lands in `apps/desktop/dist`.
 
 ### Lint, Format, and Type Check
 
@@ -77,6 +73,10 @@ pnpm run staged         # Run Vite+ checks against staged files
 ```
 
 Vite+ config is in `vite.config.ts`. It ignores generated files (`routeTree.gen.ts`, `dist/`, `local.db*`) and uses double quotes, semicolons, and sorted `package.json`.
+
+### Tests
+
+No test framework is currently configured in the workspace packages. `vite.config.ts` overrides `vitest` to `@voidzero-dev/vite-plus-test@0.1.24`, so tests can be added via Vite+/Vitest when needed.
 
 ### Git Hooks
 
@@ -92,7 +92,7 @@ This is a pnpm workspace (`pnpm-workspace.yaml`) with package-level scripts invo
 | ----------------- | ----------------------------- | ----------------------------------------------------------------------------------------------- |
 | `apps/desktop`    | `desktop`                     | `src/main/index.ts`, `src/renderer/main.tsx`, `electron.vite.config.ts`, `electron-builder.yml` |
 | `apps/web`        | `web`                         | `src/main.tsx`, `src/routes/` (file-based TanStack Router), `src/components/`, `index.html`     |
-| `apps/server`     | `server`                      | `src/index.ts` (Hono app + `serve`)                                                             |
+| `apps/server`     | `server`                      | `src/index.ts` (Hono app), `src/start.ts` (standalone server entry)                             |
 | `packages/db`     | `@shuaibin-cookie-app/db`     | `src/index.ts` (client + `createDb`), `src/schema/`, `src/migrations/`, `drizzle.config.ts`     |
 | `packages/ui`     | `@shuaibin-cookie-app/ui`     | `src/components/`, `src/styles/globals.css`, `src/lib/utils.ts`, `components.json`              |
 | `packages/env`    | `@shuaibin-cookie-app/env`    | `src/server.ts`, `src/web.ts` (Zod env schemas via `@t3-oss/env-core`)                          |
@@ -124,19 +124,39 @@ npx shadcn@latest add accordion dialog popover sheet table -c packages/ui
 
 ### Environment Variables
 
-- Server env is validated in `packages/env/src/server.ts` and loaded from `apps/server/.env`.
-- Web env is validated in `packages/env/src/web.ts` and expects `VITE_SERVER_URL` (set in `apps/web/.env`).
+- Server env is validated in `packages/env/src/server.ts` and loaded from `apps/server/.env`:
+  - `DATABASE_URL=file:../../local.db`
+  - `CORS_ORIGIN=http://localhost:3001`
+- Web env is validated in `packages/env/src/web.ts` and expects `VITE_SERVER_URL` (set in `apps/web/.env` to `http://localhost:3000`).
+- Desktop env loads `apps/server/.env` in development (via `apps/desktop/src/main/env.ts`) and uses `apps/desktop/.env` for the renderer's `VITE_SERVER_URL` (`http://localhost:3002`). In production the packaged app loads `resources/.env` and sets `CORS_ORIGIN=*` because the renderer loads from `file://`.
 - Use `SKIP_ENV_VALIDATION` to bypass validation if needed.
 
 ### Database Layer
 
 - `packages/db/src/index.ts` creates a libSQL client and Drizzle instance using `DATABASE_URL`.
-- Schema is defined in `packages/db/src/schema/` and exported as a single namespace.
+- `createDb()` returns a fresh Drizzle client; a default `db` export is also provided.
+- Schema is defined in `packages/db/src/schema/` and exported as a single namespace; the schema is currently empty.
 - `drizzle.config.ts` loads `apps/server/.env` and uses the `turso` dialect.
 
 ### Hono Server
 
-`apps/server/src/index.ts` constructs a Hono app, applies `logger()` and CORS (using `env.CORS_ORIGIN`), defines routes, and serves via `@hono/node-server` on port 3000.
+`apps/server/src/index.ts` constructs a Hono app, applies `logger()` and CORS (using `env.CORS_ORIGIN`), defines routes, and exports the app. `apps/server/src/start.ts` is the standalone Node.js entry point that serves the app on port 3000. The desktop app imports the same Hono app and starts it on its own embedded server (`apps/desktop/src/main/server.ts`).
+
+### Desktop App
+
+The desktop app has three Electron-Vite targets:
+
+- **Main**: `apps/desktop/src/main/index.ts` — creates the `BrowserWindow`, loads `server` as a workspace dependency, starts the embedded Hono server, registers IPC handlers, tray, and auto-updater.
+- **Preload**: `apps/desktop/src/preload/index.ts` — exposes a typed `electronAPI` via `contextBridge`, including `getServerPort`, file dialogs, notifications, and `minimizeToTray`.
+- **Renderer**: `apps/desktop/src/renderer/main.tsx` — a small Vite+React app that talks to the embedded server through `api.ts` and uses shared UI components.
+
+In development the renderer loads from `http://localhost:5174`; in production it loads `out/renderer/index.html`. The embedded server picks an available port starting at `3002` in development and `3001` in production.
+
+### Import Paths
+
+- Apps use `@/` to alias their own `src/` directory (configured per-package in `tsconfig.json`).
+- Shared UI is imported as `@shuaibin-cookie-app/ui/*`.
+- The server app imports `@shuaibin-cookie-app/db` and `@shuaibin-cookie-app/env/server`.
 
 ## MCP Servers and Agent Skills
 
@@ -154,4 +174,3 @@ Agent skills are vendored under `.agents/skills/` (hono, shadcn, web-design-guid
 - Root scripts use `vp` (Vite+) for task running, linting, and formatting.
 - TypeScript base config enforces strict mode, `verbatimModuleSyntax`, `noUncheckedIndexedAccess`, and unused-local/parameter checks.
 - `vite.config.ts` disables type-aware linting (`typeAware: false`, `typeCheck: false`); rely on `check-types` for type checking.
-- No test framework is currently configured in the workspace packages.
